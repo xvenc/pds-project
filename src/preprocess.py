@@ -56,7 +56,6 @@ class Preprocess:
         train_data, test_data, train_labels, test_labels = train_test_split(matrix, labels, test_size=test_size, random_state=42)
 
         return train_data, test_data, train_labels, test_labels
-        
 
     def statistics(self, df : pd.DataFrame):
         """
