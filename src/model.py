@@ -9,7 +9,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.ensemble import IsolationForest
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score
 from sklearn.model_selection import GridSearchCV
 
@@ -31,20 +30,24 @@ class ML_model:
         return self.model.predict(test_data)
 
 
-    def evaluate(self, y_test, model_name):
+    def evaluate(self, X, y_true, show=False):
         """
         Evaluate the model
         """
+        y_pred = self.model.predict(X)
 
-        y_test_pred = self.model.predict(y_test)
+        acc = self.accuracy(y_true, y_pred)
+        f1 = self.f1(y_true, y_pred)
+        prec = self.precision(y_true, y_pred)
+        conf_matrix = self.confusion_matrix(y_true, y_pred)
 
-        print('Evaluation of the', model_name, 'model')
-        print('Accuracy:', accuracy_score(y_test, y_test_pred))
-        print('F1:', f1_score(y_test, y_test_pred))
-        print('Precision:', precision_score(y_test, y_test_pred))
-        print('Confusion matrix:')
-        print(confusion_matrix(y_test, y_test_pred))
+        if show:
+            print("Accuracy: ", acc)
+            print("F1: ", f1)
+            print("Precision: ", prec)
+            print("Confusion matrix: ", conf_matrix)
 
+        return acc, f1, prec, conf_matrix
 
     def find_parameters(self, train_data, train_labels, param_grid):
         """
@@ -54,31 +57,31 @@ class ML_model:
         grid_search.fit(train_data, train_labels)
 
         return grid_search.best_params_
-    
-    def confusion_matrix(self, test_labels, predictions):
+
+    def confusion_matrix(self, y_true, y_pred):
         """
         Return the confusion matrix for the input labels and predictions
         """
-        return confusion_matrix(test_labels, predictions)
+        return confusion_matrix(y_true, y_pred)
 
-    def accuracy(self, test_labels, predictions):
+    def accuracy(self, y_true, y_pred):
         """
         Return the accuracy score for the input labels and predictions
         """
-        return accuracy_score(test_labels, predictions)
-    
-    def f1(self, test_labels, predictions):
+        return accuracy_score(y_true, y_pred)
+
+    def f1(self, y_true, y_pred):
         """
         Return the F1 score for the input labels and predictions
         """
-        return f1_score(test_labels, predictions)
-    
-    def precision(self, test_labels, predictions):
+        return f1_score(y_true, y_pred)
+
+    def precision(self, y_true, y_pred):
         """
         Return the precision score for the input labels and predictions
         """
-        return precision_score(test_labels, predictions)
-    
+        return precision_score(y_true, y_pred)
+
     def conf_matrix_graph(self, conf_matrix):
         """
         Plot the confusion matrix as a heatmap
@@ -93,7 +96,7 @@ class ML_model:
         """
         Plot the feature importance of the model
         """
-        
+
         importances = self.model.feature_importances_
         indices = np.argsort(importances)[::-1]
         plt.figure(figsize=(12, 8))
