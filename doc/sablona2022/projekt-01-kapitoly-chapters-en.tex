@@ -1,0 +1,52 @@
+% This file should be replaced with your file with an thesis content.
+%=========================================================================
+% Authors: Michal Bidlo, Bohuslav Křena, Jaroslav Dytrych, Petr Veigend and Adam Herout 2019
+
+% For compilation piecewise (see projekt.tex), it is necessary to uncomment it and change
+% \documentclass[../projekt.tex]{subfiles}
+% \begin{document}
+
+\chapter{Log file analysis introduction}
+
+This chapter describes the problem of log file analysis and the motivation for this work. It's main goal is to provide a brief background to understand the problem, purpose and methods of log file 
+analysis and anomaly detection. At the end of the chapter is brief overview of the content of other chapters.
+
+Modern computer systems generate a large amount of log data. This data is used for monitoring, debugging, and security purposes. Today's systems also grow in complexity either by 
+scaling out to distributed systems like Hadoop, Spark, Kubernetes, or by scaling up to high performance computing like Blue Gene. These systems support a large variety of online services and applications.
+Therefore these systems tend to run 24/7 and are expected to be highly available and any downtime is considered as a loss of revenue. This makes it important to monitor these systems and detect any abnormal 
+behaviour as soon as possible.
+
+All these logs are the main data source for system anomaly detection. For traditional standalone systems, developers manually check system logs or write rules to detect anomalies 
+based on their domain knowledge. They used regular expression mating combined with finding specific words in the log files (e.g., “fail”, “exception”). However, such anomaly detection that relies heavily on
+manual inspection of logs is not scalable and is not suitable for modern systems. Modern systems generate a large amount of log data and it is not feasible to manually inspect all logs. Modern systems 
+are generating around 120 to 200 milion lines of log entries per hour. So you can see the problem at that's just the tip of the iceberg in log file analysis. Another issue is that the log files aren't 
+that much structured and are in a free text format. This makes it difficult to extract useful information from the log files.
+
+But the log file analysis and processing can be crucial in many areas. For example, in the security area, log files are used to detect security breaches and attacks. 
+In the monitoring area, log files are used to detect system failures and performance issues. In the debugging area, log files are used to detect software bugs and issues. %(https://www.researchgate.net/publication/335883136_Log_File_Analysis_as_a_Method_for_Automated_Measurement_of_Internet_Usage) 
+So it is important to develop methods and tools to automatically process and analyze log files. 
+
+The process of log file analysis for anomaly detection can be divided into several steps. The first step is to collect log files from the system. The second step is to parse the log files.
+The third step is to extract useful information from the log files. The last step is to detect anomalies in the log files. In this project I focused on the machine learning methods for anomaly detection in log files.
+But there are also other methods for anomaly detection in log files (e.g. statistical methods). %https://www.researchgate.net/publication/325191790_Anomaly_Detection_Techniques
+
+Based on the type of data and the machine learning techniques used, anomaly detection methods can be classified into two broad categories: supervised anomaly detection and unsupervised
+anomaly detection. Supervised methods require labeled data, which means that the data is labeled as normal or abnormal. Unsupervised methods do not require labeled data. In this project I focused on 
+the supervised anomaly detection methods.
+
+In the next chapter I will describe the log dataset that I used for the experiments. In the third chapter I will focus on the data preprocessing and feature extraction and machine learning model selection.
+In the fourth chapter I will describe the implementation of the the and conducted experiments and also the results of these experiments. The last chapter is conclusion of the work.
+\chapter{Description and analysis of Log Dataset}
+
+\chapter{Modelling log events}
+
+\chapter{Tool implementation and experiments}
+
+\chapter{Conclusion}
+
+TODO - write a conclusion.
+
+%=========================================================================
+
+% For compilation piecewise (see projekt.tex), it is necessary to uncomment it
+% \end{document}
