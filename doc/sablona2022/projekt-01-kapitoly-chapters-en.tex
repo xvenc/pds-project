@@ -36,11 +36,72 @@ the supervised anomaly detection methods.
 
 In the next chapter I will describe the log dataset that I used for the experiments. In the third chapter I will focus on the data preprocessing and feature extraction and machine learning model selection.
 In the fourth chapter I will describe the implementation of the the and conducted experiments and also the results of these experiments. The last chapter is conclusion of the work.
+
 \chapter{Description and analysis of Log Dataset}
+
+There are plenty of log datasets available for research purposes. As I mentioned before the log dataset are often in form of unstructured text data.
+A log message records a specific event that occured in the system. Usually it has following set of fields: \textbf{timsstamp} (time when the event occurred), \textbf{log level} (the severity
+of the event, e.g INFO, WARNING) and \textbf{message} that descibes the event in free text format. An example of log message is shown bellow.
+
+\begin{center}
+
+    \fbox{
+        \begin{minipage}{0.8\linewidth} % Adjust the width as needed
+            2023-03-02 20:25:56 INFO dfs.DataNode\$DataXceiver: \\Receiving block blk\_-1608999687919862906 src: 10.250.19.102:54106 dest: 10.250.19.102:50010
+        \end{minipage}
+      }
+
+\end{center}
+
+There are many publicly available datasets published by various organizations and authors. Popular datasets are for exapmle: \textbf{Loghub}, % add footnote
+\textbf{Secrepo} or \textbf{Stratosphere labs}. For this project I used the log dataset provided by \textbf{Loghub}. This dataset is public and free to use. 
+More specifically I used the HDFS v1 dataset about which I will provide more details in the next section.
+
+Generally datasets can be divided into two groups: labelled and unlabelled datasets. The labelled datasets contain log messages that are labeled as normal or abnormal. The unlabelled datasets contain only log messages without any labels.
+I focused on the labelled datasets, because I used supervised machine learning methods for anomaly detection, but more about this is chapter \ref{model}.
+
+\section{HDFS log dataset} \label{hdfs}
+
+The dataset I chose for this project is the HDFS v1 dataset from the Loghub. The collection of the individual log files is described in this paper: % add citation. 
+This dataset contains log messages from the Hadoop Distributed File System (HDFS). The HDFS is a distributed 
+system designed to run on a large cluster of commodity hardware. The Loghub provides 3 versions of the HDFS dataset: HDFS v1, HDFS v2 and HDFS v3. I chose the HDFS v1 dataset, because it's annotated with labels.
+
+HDFS-v1 is generated in a 203-nodes HDFS using benchmark workloads and was manually labeled through handcrafted rules to differ between normal and abnormal events. The original dataset contains \texttt{11 175 629} log entries.
+From this \texttt{16 838} are labelled as anomalies and the rest as normal. Example of the log message from the HDFS v1 dataset is shown bellow.
+
+\begin{center}
+    \fbox{
+  \begin{minipage}{0.8\linewidth} % Adjust the width as needed
+    081109 203518 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.allocateBlock: /mnt/hadoop/job/job.jar. blk\_16089996
+  \end{minipage}
+}
+\end{center}
+
+Where the fields are: \textbf{timestamp} (081109 203518),\textbf{PID} (35) \textbf{log level} (INFO), \textbf{component} (dfs.FSNamesystem) and \textbf{message} (BLOCK* NameSystem.allocateBlock: /mnt/hadoop/mapred/system/job\_200811092030\_0001/job.jar. blk\_1608999687919862906).
+Where very important role in this dataset plays the \texttt{message} field, because firstly it containts the info what happend, but mainly because it contains the block id, which is the unique identifier of the log message.
+This \textbf{block id} is then used in the file with the labels.
+
+Another important part of the dataset are the labels, which are used for the supervised machine learning methods. All the labels are in separate file. where each line contains previously mentioned block id and the label (normal or abnormal).
+The entry in label file looks like this: \texttt{blk\_1608999687919862906, normal}. This means that the log message with the block id \texttt{blk\_1608999687919862906} is normal.
+
+The last important part of the dataset is the template file. This file contains the templates for the log messages. The templates are used to extract the features from the log messages. The templates are in the form close to regular expressions.
+The whole table with the templates is shown in the table \ref{tab:templates} in appendix \ref{appendix}. The templates are used to extract the features from the log messages. The features are then used as input for the machine learning model.
+The template file was generated for the HDFS v1 dataset by the authors of the dataset. The template contains 30 unique events, where each line of the log dataset is matched to one of the events and if not the there is one special event for the rest of the log messages.
+So these this template and it's events are used to extract the features from the log messages to create matrix of features for the machine learning model, but more details on this in the next chapter.
 
 \chapter{Modelling log events}
 
+\section{Data preprocessing}
+
+\section{Feature extraction}
+
+\section{Model selection} \label{model}
+
 \chapter{Tool implementation and experiments}
+
+\section{Implementation}
+
+\section{Experiments}
 
 \chapter{Conclusion}
 
