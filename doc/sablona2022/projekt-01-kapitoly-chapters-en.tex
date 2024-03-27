@@ -26,8 +26,15 @@ But the log file analysis and processing can be crucial in many areas. For examp
 In the monitoring area, log files are used to detect system failures and performance issues. In the debugging area, log files are used to detect software bugs and issues. %(https://www.researchgate.net/publication/335883136_Log_File_Analysis_as_a_Method_for_Automated_Measurement_of_Internet_Usage) 
 So it is important to develop methods and tools to automatically process and analyze log files. 
 
-The process of log file analysis for anomaly detection can be divided into several steps. The first step is to collect log files from the system. The second step is to parse the log files.
-The third step is to extract useful information from the log files. The last step is to detect anomalies in the log files. In this project I focused on the machine learning methods for anomaly detection in log files.
+The process of log file analysis for anomaly detection can be divided into 4 main steps.
+\begin{enumerate}
+    \item Collect log files from the system. The log files can be collected from various sources like system logs, application logs, network logs, etc. 
+    \item Parse the log files. The log files are in a free text format and are not structured. So the first step is to parse the log files and extract useful information from the log files.
+    \item Extract useful information from the log files. The log files contain a lot of information, but usually it's hard to retrive these infomations automaticaly from the unstructured text format. The next step is to extract these useful informations from the log files. These informations than can be used for anomaly detection.
+    \item Detect anomalies in the log files. The last step is to use some methods to detect anomalies in the log files. Anomalies are the events that are different from the normal behaviour of the system. The goal is to detect these anomalies as soon as possible to prevent system failures and security breaches.
+\end{enumerate}
+
+There are various methods that can be used to detect anomalies from the log files. In this project I focused on the machine learning methods for anomaly detection in log files.
 But there are also other methods for anomaly detection in log files (e.g. statistical methods). %https://www.researchgate.net/publication/325191790_Anomaly_Detection_Techniques
 
 Based on the type of data and the machine learning techniques used, anomaly detection methods can be classified into two broad categories: supervised anomaly detection and unsupervised
@@ -84,14 +91,29 @@ This \textbf{block id} is then used in the file with the labels.
 Another important part of the dataset are the labels, which are used for the supervised machine learning methods. All the labels are in separate file. where each line contains previously mentioned block id and the label (normal or abnormal).
 The entry in label file looks like this: \texttt{blk\_1608999687919862906, normal}. This means that the log message with the block id \texttt{blk\_1608999687919862906} is normal.
 
-The last important part of the dataset is the template file. This file contains the templates for the log messages. The templates are used to extract the features from the log messages. The templates are in the form close to regular expressions.
-The whole table with the templates is shown in the table \ref{tab:templates} in appendix \ref{appendix}. The templates are used to extract the features from the log messages. The features are then used as input for the machine learning model.
-The template file was generated for the HDFS v1 dataset by the authors of the dataset. The template contains 30 unique events, where each line of the log dataset is matched to one of the events and if not the there is one special event for the rest of the log messages.
-So these this template and it's events are used to extract the features from the log messages to create matrix of features for the machine learning model, but more details on this in the next chapter.
+The last important part of the dataset is the template file. This file contains the templates for the log messages. The templates are used to match one line of log message with individual event templates. The event templates are in a form close to regular expressions.
+The whole table with the templates is shown in the table \ref{tab:templates} in appendix \ref{appendix}. So these template events are then used as features describing the log entry. The features are then used as input for the machine learning model.
+The template file was generated for the HDFS v1 dataset by the authors of the dataset. The template contains 30 unique events, but more details on this topic is in the next chapter.
 
 \chapter{Modelling log events}
+In this chapter I will firstly describe the process of data preprocessing, then I will focus on feature extraction and at the end will talk about model selection for the log file analysis. 
+The main goal of this chapter is to provide a brief overview of the methods used in this project.
+
 
 \section{Data preprocessing}
+The data preprocessing is the first step in the log file analysis. The log files are in a free text format and are not structured. 
+The log preprocessing is the process of converting the log files into a structured format that can be used for further analysis. It's very important part 
+of the log file analysis, because the log files are usually in a free text format and are not structured, but most of the machine learning models require structured data as input.
+So the first step is to use some methods to parse the log files and extract useful information from the log files. 
+
+Typically, log parsing problem is clustering problem, where the goal is to cluster the log messages into groups based on their similarity. The log messages in the same group
+should describe the same system event and the output of this clustering should be in some form of template file. This template file is then used to match the log messages to the templates. 
+This can be done by number of existing log parsers. % cite here the log parsers from here https://arxiv.org/pdf/2008.06448.pdf page 5
+Thankfuly I didn't have to do the clustering to create the template file, because the authors of the HDFS v1 dataset already did it and they provided the template file. 
+
+So the template file contains 30 unique template events (further will be refered only as events).
+
+
 
 \section{Feature extraction}
 
