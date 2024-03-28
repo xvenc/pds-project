@@ -111,11 +111,38 @@ should describe the same system event and the output of this clustering should b
 This can be done by number of existing log parsers. % cite here the log parsers from here https://arxiv.org/pdf/2008.06448.pdf page 5
 Thankfuly I didn't have to do the clustering to create the template file, because the authors of the HDFS v1 dataset already did it and they provided the template file. 
 
-So the template file contains 30 unique template events (further will be refered only as events).
+So the template file contains 30 unique \texttt{template events} (further will be refered only as events). These events consist of two parts: \texttt{constant} and \texttt{variable}. 
+The constant part is the part of the event that is the same for all log messages that match the event. The variable part is the part of the event that can change in the log messages. 
+As you can see on the example bellow. In the first box \ref{tab:full_part} is show a log entry we already saw in the previous chapter. 
+In the second box \ref{tab:template_part} is shown the event template that matches the log entry. 
+The constant part of the event is the same as the log entry, but the variable part is replaced by the \texttt{.+} which means that the variable part can be any string. So this log 
+entry would be event number 22, or in short \textbf{E22}.
 
+\begin{center}
+    \label{tab:full_part}
+    \fbox{
+  \begin{minipage}{0.8\linewidth} % Adjust the width as needed
+    081109 203518 35 INFO dfs.FSNamesystem: BLOCK* NameSystem.allocateBlock: /mnt/hadoop/job/job.jar. blk\_16089996
+  \end{minipage}
+}
+\end{center}
 
+\begin{center}
+    \label{tab:template_part}
+    \fbox{
+  \begin{minipage}{0.8\linewidth} 
+   E22: .\*BLOCK\* NameSystem\.allocateBlock: .+ 
+  \end{minipage}
+}
+\end{center}
+
+So to correctly preprocess the log files, the log messages are matched to the event templates.
+So each line is split into 5 parts: \texttt{timestamp}, \texttt{PID}, \texttt{log level}, \texttt{component} and \texttt{message}. The \texttt{message} part is then matched to the event templates 
+using regular expressions. If the message part matches the event template, the log message is assigned the event number. If the message part doesn't match any event template, the log message is assigned \textbf{E0}.
 
 \section{Feature extraction}
+
+
 
 \section{Model selection} \label{model}
 
