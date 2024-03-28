@@ -108,7 +108,7 @@ So the first step is to use some methods to parse the log files and extract usef
 
 Typically, log parsing problem is clustering problem, where the goal is to cluster the log messages into groups based on their similarity. The log messages in the same group
 should describe the same system event and the output of this clustering should be in some form of template file. This template file is then used to match the log messages to the templates. 
-This can be done by number of existing log parsers. % cite here the log parsers from here https://arxiv.org/pdf/2008.06448.pdf page 5
+This can be done by number of existing log parsers. % logparser cite https://jiemingzhu.github.io/pub/slhe_issre2016.pdf
 Thankfuly I didn't have to do the clustering to create the template file, because the authors of the HDFS v1 dataset already did it and they provided the template file. 
 
 So the template file contains 30 unique \texttt{template events} (further will be refered only as events). These events consist of two parts: \texttt{constant} and \texttt{variable}. 
@@ -142,11 +142,48 @@ using regular expressions. If the message part matches the event template, the l
 
 \section{Feature extraction}
 
+This section describes the feature extraction process. The feature extraction is the process of extracting useful information from the log files, so it can be used as input for the machine learning model.
+As I mentioned before log file are in a free text format and are not structured, which is not suitable for machine learning models, because they require structured data as input and 
+best of all they require numerical data as input. So the goal of the feature extraction is to convert the log messages into numerical data that can be used as input for the machine learning model.
+For this I used one of the approaches proposed in the paper \cite{loglizer}. This approach is called \textbf{session window}. The another two approaches are \textbf{sliding window} and \textbf{fixed window}, but I didn't use them in this project.
 
+The session window approach is based on identifiers instead of the timestamp, which is used in the sliding window and fixed window approaches. 
+The indentifiers are the \texttt{block IDs}. Therefore, we can group the log entries according to the indetifiers, where each session window has it's own unique identifier.
+So if a new block ID is encountered, a new session window is created with coresponding event. It's obvious that the block ID can occure in multiple log entries, hence if the block ID is already in the session window, then the event is appended to the session window.
+
+Then after parsing all the log entries a so called event count matrix \texttt{X} is created. For each block ID, the number of occurences of each event is counted to form the event count vector.
+For example, if the event count vector is \texttt{[0, 0, 2, 3, 0, 0, 1]}, it means that the event 3 occured 2 times, the event 4 occured 3 times and the event 6 occured 1 time for the block ID.
+So the event count matrix is a matrix where each row represents the event count vector for the block ID. The event count matrix is then used as input for the machine learning model.
 
 \section{Model selection} \label{model}
 
+The last part of this chapter is the model selection. As I mentioned before I used the supervised machine learning methods for anomaly detection in log files. Supervised learning can be defined 
+as a machine learning task of creating a model from labeled training data that can make predictions on unseen data.
+The prerequisite of supervised anomaly detection are labeled data, which means that the data is labeled as normal or anomaly. The more the labeled data the better the model can be trained.
+For this project three machine learning methods were considered: \textbf{Logistic Regression}, \textbf{SVM} and \textbf{Random Forest}. And the model selected for the experiments was the Random Forest.
+Mainly because the Random Forest is the most familiar to me, because I used it in the past in my bachelor's thesis. It's also robust to overfitting and can handle large datasets with higher dimensionality.
+A simple example of the Random Forest model is shown in the figure \ref{fig:random_forest}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{obrazky-figures/random_forest.drawio.png}
+    \caption{Simplified picture of how Random Forest can look like.}
+    \label{fig:random_forest}
+\end{figure}
+
+The implementation of the Random Forest model was done using the \texttt{scikit-learn}\footnote[1]{\url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html} (visited 29.3.2024)} library in Python. 
+The \texttt{scikit-learn} library is a free software machine learning library for the Python programming language.
+Firstly the basic model without any hyperparameter tuning was used. The hyperparameters are the parameters that are set before the learning process begins.
+The list of all the hyperparameters before and after tuning can be found in the appendix \ref{appendix}. 
+Then I tuned the hyperparameters using the \texttt{GridSearchCV} method from the \texttt{scikit-learn} library. The \texttt{GridSearchCV} method is used to tune the hyperparameters of the model by searching over a grid of hyperparameters.
+I experimented only with a subset of the hyperparameters, because the tuning process is computationally expensive and time consuming. 
+So the final model has following hyperparameters: 
+TODO
+
 \chapter{Tool implementation and experiments}
+
+This chapter describes the implementation of the tool and the conducted experiments. 
+The main goal of this chapter is to provide a brief overview of the implementation and the results of the experiments.
 
 \section{Implementation}
 
