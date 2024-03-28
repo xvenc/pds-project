@@ -175,7 +175,7 @@ The implementation of the Random Forest model was done using the \texttt{scikit-
 The \texttt{scikit-learn} library is a free software machine learning library for the Python programming language.
 Firstly the basic model without any hyperparameter tuning was used. The hyperparameters are the parameters that are set before the learning process begins.
 The list of all the hyperparameters before and after tuning can be found in the appendix \ref{appendix}. 
-Then I tuned the hyperparameters using the \texttt{GridSearchCV} method from the \texttt{scikit-learn} library. The \texttt{GridSearchCV} method is used to tune the hyperparameters of the model by searching over a grid of hyperparameters.
+Then I tuned the hyperparameters using the \texttt{GridSearchCV}\footnote{\url{https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html} (visited 29.3.2024)} method from the \texttt{scikit-learn} library. The \texttt{GridSearchCV} method is used to tune the hyperparameters of the model by searching over a grid of hyperparameters.
 I experimented only with a subset of the hyperparameters, because the tuning process is computationally expensive and time consuming. 
 So the final model has following hyperparameters: 
 TODO
@@ -184,8 +184,38 @@ TODO
 
 This chapter describes the implementation of the tool and the conducted experiments. 
 The main goal of this chapter is to provide a brief overview of the implementation and the results of the experiments.
+The implementation of the tool was done in Python using the \texttt{scikit-learn}\footnote{\url{https://scikit-learn.org/stable/} (visited 29.3.2024)}
+library for the machine learning model and the \texttt{pandas}\footnote{\url{https://pandas.pydata.org/} (visited 29.3.2024)} library for data manipulation.
+The whole list of required packages, process of installation and some examples can be found in the appendix \ref{appendix} or in the \texttt{Readme.md} file.
+
+The script can be run from the command line and this is an example run of the script:
+\begin{verbatim}
+    python3 log-monitor.py --log_file logs/HDFS-test.log --template 
+    logs/HDFS_templates.csv --labels logs/anomaly_label.csv
+\end{verbatim}
+
+The input parameters are the log file, the template file and the label file. The log file is the log file that contains the log messages. 
+The template file is the file that contains the event templates and the label file is the file that contains the labels for the log entries.
 
 \section{Implementation}
+
+The implementation of the tool consists of several parts and it's divided into several files. 
+The main file is the \texttt{log-monitor.py} file. This file is the main file that contains the main function and function to parse the command line arguments.
+Next file is the \texttt{dataload.py} file. This file contains the class \textbf{DataLoader} that is used to load the log file, the template file and the label file. Another
+purpose of this class is match the log entries with the event templates and labels.
+Then there is the \texttt{preprocess.py} file. This file contains the class \textbf{Preprocess} that is used to preprocess the log entries and extract the features and create the 
+event count matrix. 
+The last file is the \texttt{model.py} file. This file contains the class \textbf{Model} that is used to train, tune and evaluate the machine learning model.
+The whole process of the tool is shown in the figure \ref{fig:tool}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{obrazky-figures/tool.drawio.png}
+    \caption{The process of the tool.}
+    \label{fig:tool}
+\end{figure}
+
+
 
 \section{Experiments}
 
