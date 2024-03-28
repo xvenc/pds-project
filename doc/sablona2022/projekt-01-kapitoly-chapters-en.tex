@@ -215,7 +215,14 @@ The whole process of the tool is shown in the figure \ref{fig:tool}.
     \label{fig:tool}
 \end{figure}
 
+The match function in the \textbf{DataLoader} class goes through the log file line by line and matches the log entries with the event templates. The matching is done using regular expressions.
+Then from each line the \texttt{block ID} is extracted and the log entry is assigned the event number. If the log entry doesn't match any event template, the log entry is assigned \textbf{E0}.
+Each line is tokenized into 9 parts: \texttt{timestamp}, \texttt{PID}, \texttt{log level}, \texttt{component}, \texttt{content}, \texttt{EventId}, \texttt{BlockId} and \texttt{Label}. 
+Where the block ID is extracted from the content part of the log entry. Then this can be directly used in the \textbf{Preprocess} class to create the event count matrix. But then the program would 
+be slow if it would have to go through the log file every time. So the \textbf{DataLoader} class enables to save the tokenized log entries into a csv file.
 
+Then this dictionary is then used in the \textbf{Preprocess} class to create the event count matrix. 
+The event count matrix is created by counting the number of occurences of each event for each block ID.
 
 \section{Experiments}
 
