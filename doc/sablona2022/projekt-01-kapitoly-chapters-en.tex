@@ -247,9 +247,24 @@ The evaluation metrics are the accuracy, precision, recall and f1-score. The mod
 
 \section{Experiments}
 
+% TODO - experiments, normal params, improved params, balanced, imbalanced, normalised, not normalised
+% Show confusion matrix
+
 \chapter{Conclusion}
 
-TODO - write a conclusion.
+This project focused on the log file analysis and anomaly detection.
+The main goal of the project was to develop a tool that can be used to detect anomalies in log files using machine learning methods and to conduct experiments and evaluate the results.
+
+From the experiments it can be seen that the Random Forest model achieved the best results. The model achieved the accuracy of 0.99, the precision of 0.99, the recall of 0.99 and the f1-score of 0.99.
+The model was also evaluated using the confusion matrix. The model was trained on the balanced dataset and the imbalanced dataset. The model achieved better results on the balanced dataset, but the results on the imbalanced dataset were also good.
+From all of this it would seem that the model is good and can be used for anomaly detection in log files. But there were some limitations to the project. 
+First of all we need to consider that the tool needs a template file to work. How is the template file created> The template file is created specifically for the log dataset that is used for the training and testing of the model.
+So the tool won't perform well if there will be some new log entries that don't match any event template. Because all new log entries will be assigned \textbf{E0}. So this new entry will be most likely classified as anomaly, which 
+may be a wrong classification.
+
+In my project I focused on the session window method for feature extraction. This method is based only on the block ID and doesn't take into account the timestamp. 
+The timestamp can be also useful for the anomaly detection, because if more anomalies occur in a short period of time, it can be a sign of somethig wrong happening in the system, but this method doesn't take this into account. 
+So the future work could be to experiment with the sliding window and fixed window methods for feature extraction and combination of these methods.
 
 %=========================================================================
 
