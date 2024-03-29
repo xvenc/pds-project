@@ -12,8 +12,10 @@ import pandas as pd
 class DataLoader:
 
     processed = 0
-    skipped = 0
+    unknown_label = 0
     matched = 0
+    unknown_event = 0
+    skipped = 0
 
     def __init__(self, log_file, log_template_file, label_file):
         self.log_file = log_file
@@ -41,7 +43,8 @@ class DataLoader:
         with open(self.log_template_file, 'r') as f:
             print("Reading log template file...")
             log_template = list(csv.reader(f))
-        return log_template[1:]
+
+        return self._replace_string_template(log_template[1:])
 
     def read_label_csv(self):
         """
@@ -62,6 +65,16 @@ class DataLoader:
         print("Reading log file...")
         df = pd.read_csv(file_name)
         return df
+    
+    def _replace_string_template(self, log_template):
+        """
+        Replace special characters in the log template, so they can be used in regex matching
+        """
+        for line in log_template:
+            line[1] = line[1].replace('BLOCK*', 'BLOCK\*')
+            line[1] = line[1].replace('<*>', '.*')
+        
+        return log_template
 
     def _extract_blk_id(self, line):
         """
@@ -99,6 +112,7 @@ class DataLoader:
         """
         Match the events in the log with the log template and labels
         """
+        print("Parsing log...")
         for l in log:
             blk_id = self._extract_blk_id(l[-1])
             label = self._extract_label(labels, blk_id)
@@ -109,14 +123,27 @@ class DataLoader:
                 if match:
                     event_id = pat[0]
                     break
-            if blk_id and match and label:
+            
+            if blk_id and event_id and label:
                 self.matched += 1
                 event = [event_id, blk_id, label]
                 l.extend(event)
+            elif blk_id and label and not event_id:
+                # If the event id is not present, mark the event as E0
+                event = ['E0', blk_id, label]
+                l.extend(event)
+                self.unknown_event += 1
+            elif blk_id and not label and event_id:
+                # If the label is not present, mark the event as an anomaly
+                event = [event_id, blk_id, 'Anomaly']
+                l.extend(event)
+                self.unknown_label += 1
             else:
+                # Skip the line if it doesn't contain the block id
                 self.skipped += 1
-                print("No match found for: ", l[-1])
+
             self.processed += 1
+
         return log
 
     def get_stats(self):
@@ -125,4 +152,6 @@ class DataLoader:
         """
         print("Processed: ", self.processed)
         print("Matched: ", self.matched)
+        print("Unknown label: ", self.unknown_label)
+        print("Unknown event: ", self.unknown_event)
         print("Skipped: ", self.skipped)

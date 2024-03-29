@@ -20,7 +20,9 @@ class Preprocess:
         """
 
         columns_to_drop = ['Date', 'Time', 'PID', 'Content', 'Level', 'Component']
-        sorted_cols = ['E' + str(i) for i in range(1, 30)]
+
+        unique_cols = df['EventId'].unique()
+        sorted_cols = sorted(unique_cols, key=lambda x: int(x[1:]))
         labels = df[['Label', 'BlockId']].drop_duplicates()
 
         df = df.drop(columns=columns_to_drop)
@@ -39,6 +41,9 @@ class Preprocess:
 
         anomaly_cnt = len(df[df['Label'] == 1])
         desired_normal_cnt = int((anomaly_cnt/ (1-normal_ratio)) - anomaly_cnt)
+
+        # Shuffle the dataframe
+        df = df.sample(frac=1).reset_index(drop=True)
 
         normal = df[df['Label'] == 0]
         normal = normal.sample(desired_normal_cnt)

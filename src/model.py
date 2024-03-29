@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
 from sklearn.model_selection import GridSearchCV
 
 class ML_model:
@@ -39,15 +39,16 @@ class ML_model:
         acc = self.accuracy(y_true, y_pred)
         f1 = self.f1(y_true, y_pred)
         prec = self.precision(y_true, y_pred)
+        rec = self.recall(y_true, y_pred)
         conf_matrix = self.confusion_matrix(y_true, y_pred)
 
         if show:
             print("Accuracy: ", acc)
             print("F1: ", f1)
             print("Precision: ", prec)
-            print("Confusion matrix: ", conf_matrix)
+            print("Recall: ", rec)
 
-        return acc, f1, prec, conf_matrix
+        return acc, f1, prec, rec, conf_matrix
 
     def find_parameters(self, train_data, train_labels, param_grid):
         """
@@ -75,6 +76,12 @@ class ML_model:
         Return the F1 score for the input labels and predictions
         """
         return f1_score(y_true, y_pred)
+
+    def recall(self, y_true, y_pred):
+        """
+        Return the recall score for the input labels and predictions
+        """
+        return recall_score(y_true, y_pred)
 
     def precision(self, y_true, y_pred):
         """
