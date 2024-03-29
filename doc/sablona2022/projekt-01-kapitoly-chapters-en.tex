@@ -140,7 +140,7 @@ So to correctly preprocess the log files, the log messages are matched to the ev
 So each line is split into 5 parts: \texttt{timestamp}, \texttt{PID}, \texttt{log level}, \texttt{component} and \texttt{message}. The \texttt{message} part is then matched to the event templates 
 using regular expressions. If the message part matches the event template, the log message is assigned the event number. If the message part doesn't match any event template, the log message is assigned \textbf{E0}.
 
-\section{Feature extraction}
+\section{Feature extraction} \label{feature}
 
 This section describes the feature extraction process. The feature extraction is the process of extracting useful information from the log files, so it can be used as input for the machine learning model.
 As I mentioned before log file are in a free text format and are not structured, which is not suitable for machine learning models, because they require structured data as input and 
@@ -155,7 +155,7 @@ Then after parsing all the log entries a so called event count matrix \texttt{X}
 For example, if the event count vector is \texttt{[0, 0, 2, 3, 0, 0, 1]}, it means that the event 3 occured 2 times, the event 4 occured 3 times and the event 6 occured 1 time for the block ID.
 So the event count matrix is a matrix where each row represents the event count vector for the block ID. The event count matrix is then used as input for the machine learning model.
 
-\section{Model selection} \label{model}
+\section{Model selection and evaluation metrics} \label{model}
 
 The last part of this chapter is the model selection. As I mentioned before I used the supervised machine learning methods for anomaly detection in log files. Supervised learning can be defined 
 as a machine learning task of creating a model from labeled training data that can make predictions on unseen data.
@@ -179,6 +179,14 @@ Then I tuned the hyperparameters using the \texttt{GridSearchCV}\footnote{\url{h
 I experimented only with a subset of the hyperparameters, because the tuning process is computationally expensive and time consuming. 
 So the final model has following hyperparameters: 
 TODO
+
+The model is evaluated using the \texttt{accuracy}, \texttt{precision}, \texttt{recall} and \texttt{f1-score} metrics. The model is also evaluated using the \texttt{confusion matrix}.
+\begin{itemize}
+    \item \textbf{Accuracy (ACC)}  \,--\, the ratio of correctly predicted observations to the total observations. And it's calculated by the formula: $ACC = \frac{TP + TN}{TP + TN + FP + FN}$.
+    \item \textbf{Precision (PRE)} \,--\, the ratio of correctly predicted positive observations to the total predicted positive observations. And it's calculated by the formula: $PRE = \frac{TP}{TP + FP}$.
+    \item \textbf{Recall (REC)} \,--\, the ratio of correctly predicted positive observations to the all observations in actual class. And it's calculated by the formula: $REC = \frac{TP}{TP + FN}$.
+    \item \textbf{F1-score (F1)} \,--\, the weighted average of the precision and recall. And it's calculated by the formula: $F1 = 2 \cdot \frac{PRE \cdot REC}{PRE + REC}$.
+\end{itemize}
 
 \chapter{Tool implementation and experiments}
 
@@ -221,8 +229,21 @@ Each line is tokenized into 9 parts: \texttt{timestamp}, \texttt{PID}, \texttt{l
 Where the block ID is extracted from the content part of the log entry. Then this can be directly used in the \textbf{Preprocess} class to create the event count matrix. But then the program would 
 be slow if it would have to go through the log file every time. So the \textbf{DataLoader} class enables to save the tokenized log entries into a csv file.
 
-Then this dictionary is then used in the \textbf{Preprocess} class to create the event count matrix. 
-The event count matrix is created by counting the number of occurences of each event for each block ID.
+This csv file is then used as input for the \textbf{Preprocess} class. The \textbf{Preprocess} class loads the csv file and starts the process of creating the event count matrix. 
+Firstly the unwanted columns are dropped and the log entries are grouped by the block ID. 
+Then for each block ID the event count vector is created as described in the chapter \ref{feature}. All these event count vectors are then concatenated into the event count matrix. 
+
+Now the event count matrix is almost ready to be used as input for the machine learning model. The experiments were conducted on normalised event count matrix and on the event count matrix without normalisation.
+The normalized values are calculated by the formula: $X_{norm} = \frac{X - X_{min}}{X_{max} - X_{min}}$. Where $X$ is the original value, $X_{min}$ is the minimum number of occurences of the feature and $X_{max}$ is the maximum number of occurences of the feature.
+The values are then scaled to the range of 0 to 1. The normalisation is done to prevent the model from being biased towards the features with higher values.
+After all this done we have the event count matrix that can be used as input for the machine learning model.
+
+The last part of the tool is the \textbf{Model} class. This class is used to train, tune and evaluate the machine learning model. The model is trained on the event count matrix and the labels.
+Another important part of this class is splitting the data into training and test data.
+But there is a slight problem with the dataset. The dataset is highly imbalanced, because there are only 16 838 anomalies out of 11 175 629 log entries.
+So the experiments were conducted on balanced and imbalanced dataset. The balanced dataset was created by randomly selecting the same number of normal log entries as the number of anomalies.
+As mentioned in the previous chapter \ref{model} the Random Forest model was used for the experiments. The model is trained on the training data and then evaluated on the test data.
+The evaluation metrics are the accuracy, precision, recall and f1-score. The model is also evaluated using the confusion matrix. All these metrics are then printed to the console.
 
 \section{Experiments}
 
