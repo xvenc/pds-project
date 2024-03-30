@@ -2,7 +2,7 @@
 
 **Author:** Václav Korvas (xkorva03)
 
-**Date:** 24-04-2024
+**Date:** 22-04-2024
 
 
 The goal of this project is to analyze log files and detect anomalies in these log files. 
@@ -11,6 +11,12 @@ This project is based on the Hadoop Distributed File System (HDFS) log file, whi
 ## Instalation
 
 First, you need to install the required packages. You can do this by running the following command:
+
+```shell
+make install
+```
+
+or you can install the packages manually by running the following command:
 
 ```shell
 pip install -r requirements.txt
@@ -29,9 +35,6 @@ Then you can run the main script by running the following command:
 python log-monitor.py <arguments> 
 ```
 
-## Archive structure 
-
-The archive contains 2 main direcotries. The `src/` directory contains the source codes for the project. The `logs/` directory contains the log file, the anomaly labels and the template for the log file. And in the root directory, there is the main script for log file analysis and anomaly detection `log-monitor.py` and the project documentation `xkorva03.pdf`.
 
 ## Usage
 
@@ -39,10 +42,12 @@ The main script `log-monitor.py` is used for log file analysis and anomaly detec
 
 ```shell
 
-usage: log-monitor.py [-h] [--log_file LOG_FILE] [--template TEMPLATE_FILE] [--labels DATASET_LABELS] [--model MODEL_NAME]
+usage: log-monitor.py [-h] [--log_file LOG_FILE] [--template TEMPLATE_FILE] [--labels DATASET_LABELS] [--model MODEL_NAME] [--parse]
 ```
 
 There are 2 options for model selection. The first option is the `random_forest` model and the second option is the `isolation_forest` model. The model can be selected by providing the `--model` argument.
+
+The `--parse` argument is used for parsing the log file. If the `--parse` argument is provided, the log file will be parsed. This will cause that the program will run longer, because it needs to parse all the log lines. If the `--parse` argument is not provided, the program will use the already parsed log file. The parsed log file is stored in the `logs/hdfs.csv` file.
 
 If no arguments are provided, the script will use the default values for the arguments. The default values are as follows:
 
@@ -50,6 +55,11 @@ If no arguments are provided, the script will use the default values for the arg
 * `--template` - `logs/HDFS_template.csv`
 * `--labels` - `logs/anomaly_label.csv`
 * `--model` - `random_forest`
+* `--parse` - `False`
+
+## Archive structure 
+
+The archive contains 2 main direcotries. The `src/` directory contains the source codes for the project. The `logs/` directory contains the log file, the anomaly labels and the template for the log file. And in the root directory, there is the main script for log file analysis and anomaly detection `log-monitor.py` and the project documentation `xkorva03.pdf`.
 
 ## Archive content
 

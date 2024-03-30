@@ -6,7 +6,8 @@ Main module for log monitoring and anomaly detection
 """
 
 import argparse
-import matplotlib.pyplot as plt
+import pandas as pd
+import os
 from src.dataload import DataLoader
 from src.preprocess import Preprocess
 from src.model import ML_model
@@ -26,22 +27,37 @@ def parse_args():
 
     return parser.parse_args()
 
+def save_results(df : pd.DataFrame, file_name, f_path):
+    """
+    Save the results to a csv file
+    """
+    if not os.path.exists(f_path):
+        os.makedirs(f_path)
+
+    df.to_csv(f_path + file_name, index=False)
+
 # 0 train, 1 test, 2 train_labels, 3 test_labels
 def perform_experiments(models, model_names, balanced_data, unbalanced_data):
     """
     Perform experiments with the models
     """
+
+    result_df = pd.DataFrame(columns=['Model', 'Accuracy', 'F1', 'Precision', 'Recall', 'FPR'])
     i = 0
     for model, name in zip(models, model_names):
         print("\nModel: ", name)
         if i % 2 == 0:
             model.train(balanced_data[0], balanced_data[2])
-            y_pred = model.predict(balanced_data[1])
             acc, f1, prec, rec, conf_matrix = model.evaluate(balanced_data[1], balanced_data[3], show=True)
         else:
             model.train(unbalanced_data[0], unbalanced_data[2])
-            y_pred = model.predict(unbalanced_data[1])
             acc, f1, prec, rec, conf_matrix = model.evaluate(unbalanced_data[1], unbalanced_data[3], show=True)    
+        new_row = {'Model': name, 'Accuracy': acc, 'F1': f1, 'Precision': prec, 'Recall': rec, 'FPR': conf_matrix[0][1] / (conf_matrix[0][1] + conf_matrix[0][0])}
+        result_df.loc[i] = new_row
+        i += 1
+    
+    return result_df
+
 
 if __name__ == '__main__':
     args = parse_args()
@@ -86,4 +102,6 @@ if __name__ == '__main__':
     models = [ml_model, ml_model_unbalanced, ml_model_def, ml_model_def_unbalanced]
     model_names = ['RF tuned balanced', 'RF tuned unbalanced', 'RF default balanced', 'RF default unbalanced']
 
-    perform_experiments(models, model_names, balanced_data, unbalanced_data)
+    result_df = perform_experiments(models, model_names, balanced_data, unbalanced_data)
+    save_results(result_df, 'results.csv', './out/') 
+    print(result_df)

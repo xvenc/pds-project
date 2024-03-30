@@ -124,10 +124,3 @@ class ML_model:
             os.makedirs(f_path)
 
         df.to_csv(f_path + file_name, index=False)
-    
-    def create_results(self, models, results):
-        """
-        Create a dataframe with the results
-        """
-        cols = ['Model', 'Accuracy', 'F1', 'Precision', 'Recall']
-        return results
