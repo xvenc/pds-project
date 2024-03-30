@@ -26,7 +26,8 @@ def parse_args():
 
     return parser.parse_args()
 
-def perform_experiments(df, models, model_names, balanced_data, unbalanced_data):
+# 0 train, 1 test, 2 train_labels, 3 test_labels
+def perform_experiments(models, model_names, balanced_data, unbalanced_data):
     """
     Perform experiments with the models
     """
@@ -34,13 +35,13 @@ def perform_experiments(df, models, model_names, balanced_data, unbalanced_data)
     for model, name in zip(models, model_names):
         print("\nModel: ", name)
         if i % 2 == 0:
-            model.train(balanced_data['train_data'], balanced_data['train_labels'])
-            y_pred = model.predict(balanced_data['test_data'])
-            acc, f1, prec, rec, conf_matrix = model.evaluate(balanced_data['test_data'], balanced_data['test_labels'], show=True)
+            model.train(balanced_data[0], balanced_data[2])
+            y_pred = model.predict(balanced_data[1])
+            acc, f1, prec, rec, conf_matrix = model.evaluate(balanced_data[1], balanced_data[3], show=True)
         else:
-            model.train(unbalanced_data['train_data'], unbalanced_data['train_labels'])
-            y_pred = model.predict(unbalanced_data['test_data'])
-            acc, f1, prec, rec, conf_matrix = model.evaluate(unbalanced_data['test_data'], unbalanced_data['test_labels'], show=True)    
+            model.train(unbalanced_data[0], unbalanced_data[2])
+            y_pred = model.predict(unbalanced_data[1])
+            acc, f1, prec, rec, conf_matrix = model.evaluate(unbalanced_data[1], unbalanced_data[3], show=True)    
 
 if __name__ == '__main__':
     args = parse_args()
@@ -84,3 +85,5 @@ if __name__ == '__main__':
 
     models = [ml_model, ml_model_unbalanced, ml_model_def, ml_model_def_unbalanced]
     model_names = ['RF tuned balanced', 'RF tuned unbalanced', 'RF default balanced', 'RF default unbalanced']
+
+    perform_experiments(models, model_names, balanced_data, unbalanced_data)
