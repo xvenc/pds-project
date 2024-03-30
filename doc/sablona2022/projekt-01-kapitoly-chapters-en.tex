@@ -162,7 +162,10 @@ as a machine learning task of creating a model from labeled training data that c
 The prerequisite of supervised anomaly detection are labeled data, which means that the data is labeled as normal or anomaly. The more the labeled data the better the model can be trained.
 For this project three machine learning methods were considered: \textbf{Logistic Regression}, \textbf{SVM} and \textbf{Random Forest}. And the model selected for the experiments was the Random Forest.
 Mainly because the Random Forest is the most familiar to me, because I used it in the past in my bachelor's thesis. It's also robust to overfitting and can handle large datasets with higher dimensionality.
-A simple example of the Random Forest model is shown in the figure \ref{fig:random_forest}.
+A simple example of how the Random Forest model works is shown in the figure \ref{fig:random_forest}.
+
+Another model that was used in the experiments was the Isolation Forest. % TODO cite this https://ieeexplore.ieee.org/document/4781136 
+The Isolation Forest is an unsupervised machine learning model for anomaly detection. It's based on the Random Forest model, but it's used for anomaly detection.
 
 \begin{figure}
     \centering
@@ -171,7 +174,7 @@ A simple example of the Random Forest model is shown in the figure \ref{fig:rand
     \label{fig:random_forest}
 \end{figure}
 
-The implementation of the Random Forest model was done using the \texttt{scikit-learn}\footnote[1]{\url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html} (visited 29.3.2024)} library in Python. 
+The implementation of the Random Forest and Isolation Forest models were done using the \texttt{scikit-learn}\footnote[1]{\url{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html} (visited 29.3.2024)} library in Python. 
 The \texttt{scikit-learn} library is a free software machine learning library for the Python programming language.
 Firstly the basic model without any hyperparameter tuning was used. The hyperparameters are the parameters that are set before the learning process begins.
 The list of all the hyperparameters before and after tuning can be found in the appendix \ref{appendix}. 
@@ -187,6 +190,7 @@ The model is evaluated using the \texttt{accuracy}, \texttt{precision}, \texttt{
     \item \textbf{Recall (REC)} \,--\, the ratio of correctly predicted positive observations to the all observations in actual class. And it's calculated by the formula: $REC = \frac{TP}{TP + FN}$.
     \item \textbf{F1-score (F1)} \,--\, the weighted average of the precision and recall. And it's calculated by the formula: $F1 = 2 \cdot \frac{PRE \cdot REC}{PRE + REC}$.
 \end{itemize}
+
 
 \chapter{Tool implementation and experiments}
 
@@ -243,21 +247,110 @@ Another important part of this class is splitting the data into training and tes
 But there is a slight problem with the dataset. The dataset is highly imbalanced, because there are only 16 838 anomalies out of 11 175 629 log entries.
 So the experiments were conducted on balanced and imbalanced dataset. The balanced dataset was created by randomly selecting the same number of normal log entries as the number of anomalies.
 As mentioned in the previous chapter \ref{model} the Random Forest model was used for the experiments. The model is trained on the training data and then evaluated on the test data.
-The evaluation metrics are the accuracy, precision, recall and f1-score. The model is also evaluated using the confusion matrix. All these metrics are then printed to the console.
+The evaluation metrics are the accuracy, precision, recall and f1-score. The model is also evaluated using the confusion matrix. All these metrics are then printed to the console, 
+but only for the tuned Random Forest model on the balanced dataset. All the other results are saved into the \texttt{out/results.csv} file. The folder \texttt{out} 
+also contains the confusion matrix graph.
 
-\section{Experiments}
+\chapter{Experiments and results}
 
-% TODO - experiments, normal params, improved params, balanced, imbalanced, normalised, not normalised
-% Show confusion matrix
+This chapter describes the experiments that were conducted. The experiments were conducted on the dataset described above.
+There were performed many experiments with different hyperparameters and different dataset configurations. The experiments were conducted on the balanced and imbalanced dataset.
+At the end a small comparation between \textbf{Random Forest} and \textbf{Isolation Forest} was done to see how the Random Forest model performs compared to the Isolation Forest model.
+So first we will look at the two datasets that were used for the experiments. The first dataset is the balanced dataset and the second dataset is the imbalanced dataset.
+Then we will look at the result comparation between default and tuned hyperparameters for the Random Forest model. 
+At the end we will look at the comparation between the Random Forest with default hyperparameters and Isolation Forest model also with default hyperparameters.
+
+\section{Final datasets}
+The dataset was split into training and test data. The training data contained 75\% of the data and the test data contained 25\% of the data.
+
+So after the preprocessing and feature extraction the event count matrix was created. So the dataset has total of 32 columns, where 31 columns coresponds with the 31 unique events and the last column is the label column.
+The label column contains two values: \texttt{normal} and \texttt{anomaly}. These values are then encoded so the \texttt{normal} is encoded as \textbf{0} and the \texttt{anomaly} is encoded as \textbf{1}.
+
+The balanced dataset contains total of \textbf{42 095} entries. From these entries \textbf{25 257} are normal and \textbf{16 838} are anomalies. 
+The dataset is then split into training and test data. The training data contains \textbf{31 571} entries and the test data contains \textbf{10 524} entries. 
+
+\begin{table}[hbt]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{Entry type} & \textbf{Training data} & \textbf{Test data} & \textbf{Combined} \\ \hline
+    Normal             & 18 980                           & 6277                            & 25 257                          \\ \hline
+    Anomaly              & 12 591                             & 4247                            & 16 838                          \\ \hline
+    Normal + Anomaly    & 31 571                           & 10 524                            & 42 095                          \\ \hline
+    \end{tabular}
+    \caption{Table containing an overview of the balanced dataset.}    
+\end{table}
+
+The imbalanced dataset contains total of \textbf{575 061} entries. From these entries \textbf{558 223} are normal and \textbf{16 838} are anomalies.
+The dataset is then split into training and test data. The training data contains \textbf{431 295} entries and the test data contains \textbf{143 766} entries.
+
+\begin{table}[hbt]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{Entry type} & \textbf{Training data} & \textbf{Test data} & \textbf{Combined} \\ \hline
+    Normal             & 418 629                           & 139 594                            & 558 223                          \\ \hline
+    Anomaly              & 12 666                             & 4172                            & 16 838                          \\ \hline
+    Normal + Anomaly    & 431 295                           & 143 766                            & 575 061                         \\ \hline
+    \end{tabular}
+    \caption{Table containing an overview of the balanced dataset.}    
+\end{table}
+
+\section{Model performance comparison: Default vs. Tuned hyperparameters}
+
+These experiments were conducted on the balanced and imbalanced dataset. The model was trained on the training data and evaluated on the test data.
+The experiments were conducted on the default hyperparameters and on the tuned hyperparameters for a Random Forest (RF) model.
+The results are shown in the table \ref{result_normal}.
+The table contains the results for both balanced and imbalanced dataset with default and tuned hyperparameters. The metrics 
+that were used for the evaluation are the F1-score, precision (PRE), recall (REC), false positivity rate (FPR) and accuracy (ACC) . 
+The model was also evaluated using the confusion matrix, which is shown in the figure \ref{fig:confusion_matrix}. The confusion matrix shows the number of true positives (TP), true negatives (TN), false positives (FP) and false negatives (FN). 
+The confusion matrix is shown in form of a heatmap.
+
+\begin{table}[h]
+    \centering
+    \label{result_normal}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \textbf{Algoritmus} & \textbf{F1 skóre} & \textbf{PRE} & \textbf{REC} & \textbf{FPR} & \textbf{ACC} \\ \hline
+    RF default balanced       & 0.9890 & 0.9877 & 0.9902 & \textbf{0.0057} & \textbf{0.9919}\\ \hline
+    RF default imbalanced     & 0.9874 & 0.9857 & 0.9892 & \textbf{0.0063} & \textbf{0.9908}\\ \hline
+    RF tuned balanced         & 0.9831 & 0.9821 & 0.9841 & \textbf{0.0092} & \textbf{0.9876}\\ \hline
+    RF tuned imbalanced       & 0.8889 & 0.8710 & 0.9077 & \textbf{0.0515} & \textbf{0.9200}\\ \hline
+    \end{tabular}
+    \caption{Table containing the results for both balanced and imbalanced dataset with default and tuned hyperparameters.}    
+\end{table}
+
+\section{Model performance comparison: Random Forest vs. Isolation Forest}
+
+The last experiments were conducted on the Random Forest (RF) model and the Isolation Forest (IF) model. The Isolation Forest is an unsupervised machine learning model for anomaly detection.
+So it should perform well on the imbalanced dataset. So the experiments were conducted on the imbalanced dataset. The results are shown in the table \ref{result_compare}. And it should be noted that the Isolation Forest and the Random Forest models were used with default hyperparameters.
+These hyperparametes are listed in the appendix \ref{appendix}. Isolation Forest should performe better when used on the imbalanced dataset, because the use case of the Isolation Forest is mainly anomaly detection, which is our goal.
+
+\begin{table}[h]
+    \centering
+    \label{result_compare}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \textbf{Algoritmus} & \textbf{F1 skóre} & \textbf{PRE} & \textbf{REC} & \textbf{FPR} & \textbf{ACC} \\ \hline
+    Random Forest       & 0.9890 & 0.9877 & 0.9902 & \textbf{0.0057} & \textbf{0.9919}\\ \hline
+    Isolation Forest    & 0.9874 & 0.9857 & 0.9892 & \textbf{0.0063} & \textbf{0.9908}\\ \hline
+    \end{tabular}
+    \caption{Table containing the results for both balanced and imbalanced dataset with default and tuned hyperparameters.}    
+\end{table}
+
+\section{Results}
+
+The results of the experiments are shown in the tables \ref{result_normal} and \ref{result_compare}. The Random Forest model achieved the best results on the balanced dataset with the tuned hyperparameters.
+The model achieved the accuracy of 0.99, the precision of 0.99, the recall of 0.99 and the f1-score of 0.99. The model was also evaluated using the confusion matrix, which showed 
+that the model with tuned hyperparameters has low false positivity rate. The model also achieved good results on the imbalanced dataset, but after further inspection it can be seen that the model has higher false positivity rate.
 
 \chapter{Conclusion}
 
 This project focused on the log file analysis and anomaly detection.
 The main goal of the project was to develop a tool that can be used to detect anomalies in log files using machine learning methods and to conduct experiments and evaluate the results.
 
-From the experiments it can be seen that the Random Forest model achieved the best results. The model achieved the accuracy of 0.99, the precision of 0.99, the recall of 0.99 and the f1-score of 0.99.
-The model was also evaluated using the confusion matrix. The model was trained on the balanced dataset and the imbalanced dataset. The model achieved better results on the balanced dataset, but the results on the imbalanced dataset were also good.
-From all of this it would seem that the model is good and can be used for anomaly detection in log files. But there were some limitations to the project. 
+From the experiments it can be seen that the Random Forest model performed the best on balanced dataset. The model achieved the accuracy of 0.99, the precision of 0.99, the recall of 0.99 and the f1-score of 0.99.
+From all of this it would seem that the model is good and can be used for anomaly detection in log files. But there were some limitations to this project. 
 First of all we need to consider that the tool needs a template file to work. How is the template file created> The template file is created specifically for the log dataset that is used for the training and testing of the model.
 So the tool won't perform well if there will be some new log entries that don't match any event template. Because all new log entries will be assigned \textbf{E0}. So this new entry will be most likely classified as anomaly, which 
 may be a wrong classification.
@@ -265,6 +358,12 @@ may be a wrong classification.
 In my project I focused on the session window method for feature extraction. This method is based only on the block ID and doesn't take into account the timestamp. 
 The timestamp can be also useful for the anomaly detection, because if more anomalies occur in a short period of time, it can be a sign of somethig wrong happening in the system, but this method doesn't take this into account. 
 So the future work could be to experiment with the sliding window and fixed window methods for feature extraction and combination of these methods.
+
+But overvall the results were good and the approach of using session window for feature extraction and Random Forest for anomaly detection seems to be a good approach for anomaly detection in log files.
+The next work could be to add a log parser tool, which would be used to automatically create the template files from the log files. This would make the tool more general and it could be used for any log files.
+This can be achieved by using some of the existing tool like Logparser\footnote{\url{https://jiemingzhu.github.io/pub/slhe_issre2016.pdf} (visited 29.3.2024)}, that uses the clustering method for log parsing.
+This would also make the tool more user friendly and easier to use. The tool could also be used for other purposes like security monitoring, system monitoring and debugging. As always there is a room for 
+improvement and further work, but the results of this project are promising.
 
 %=========================================================================
 
