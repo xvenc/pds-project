@@ -27,12 +27,19 @@ def parse_args():
 
     return parser.parse_args()
 
+def perform_experiments(df, model):
+    """
+    Perform experiments with the model
+    """
+    pass
+
 if __name__ == '__main__':
     args = parse_args()
 
     loader = DataLoader(args.log_file, args.template, args.labels) 
     preprocess = Preprocess()
 
+    # If the parse argument is set, parse the log file and match the events with the labels
     if args.parse:
         log = loader.read_log(split=True)
         log_template = loader.read_log_template_csv()
@@ -43,18 +50,18 @@ if __name__ == '__main__':
     else:
         df = loader.read_log_csv('./logs/hdfs.csv')
 
-    df = preprocess.preprocess(df)
+    event_ids = loader.extract_template_events()
+    df = preprocess.preprocess(df, event_ids)
 
     df_unbalanced = df.copy()
-    df_balanced = preprocess.normal_anomaly_ratio(df, 0.9)
+    df_balanced = preprocess.normal_anomaly_ratio(df, 0.6)
 
-    print("\nBalanced dataset:")
+    print("\nBalanced dataset")
     preprocess.statistics(df_balanced)
-    print("\nUnbalanced dataset:")
+    train_data, test_data, train_labels, test_labels = preprocess.data_split(df_balanced, 0.25, True)
+    print("\nUnbalanced dataset")
     preprocess.statistics(df_unbalanced)
-
-    train_data, test_data, train_labels, test_labels = preprocess.data_split(df_balanced, 0.25)
-    train_data_unbalanced, test_data_unbalanced, train_labels_unbalanced, test_labels_unbalanced = preprocess.data_split(df_unbalanced, 0.25)
+    train_data_unbalanced, test_data_unbalanced, train_labels_unbalanced, test_labels_unbalanced = preprocess.data_split(df_unbalanced, 0.25, True)
 
     if args.model == 'isolation_forest':
         model = IsolationForest(n_estimators=100, max_samples='auto', contamination='auto', max_features=1.0)
@@ -63,6 +70,8 @@ if __name__ == '__main__':
 
     ml_model = ML_model(model)
     ml_model_unbalanced = ML_model(model)
+    ml_model_def = ML_model(RandomForestClassifier())
+    ml_model_def_unbalanced = ML_model(RandomForestClassifier())
 
     #params = {'n_estimators': [10, 50, 100, 200], 
     #          'criterion' : ['gini', 'entropy'],
@@ -74,10 +83,23 @@ if __name__ == '__main__':
     #best = ml_model.find_parameters(train_data, train_labels, params)
     #print(best)
 
+    print("\nDefault model balanced:")
+    ml_model_def.train(train_data, train_labels)
+    y_pred_def = ml_model_def.predict(test_data)
+
+    _ = ml_model_def.evaluate(test_data, test_labels, show=True)
+
+    print("\nDefault model unbalanced:")
+    ml_model_def_unbalanced.train(train_data_unbalanced, train_labels_unbalanced)
+    y_pred_def_unbalanced = ml_model_def_unbalanced.predict(test_data_unbalanced)
+
+    _ = ml_model_def_unbalanced.evaluate(test_data_unbalanced, test_labels_unbalanced, show=True)
+
+
     ml_model.train(train_data, train_labels)
     y_pred = ml_model.predict(test_data)
 
-    print("\nBalanced dataset:")
+    print("\nBalanced dataset tuned:")
     acc, f1, prec, rec, conf_matrix = ml_model.evaluate(test_data, test_labels, show=True)
 
     ml_model_unbalanced.train(train_data_unbalanced, train_labels_unbalanced)

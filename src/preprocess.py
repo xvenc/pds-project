@@ -14,21 +14,31 @@ class Preprocess:
     def __init__(self):
         pass
 
-    def preprocess(self, df : pd.DataFrame) -> pd.DataFrame:
+    def preprocess(self, df : pd.DataFrame, cols) -> pd.DataFrame:
         """
         Preprocesses the input dataframe into a format suitable for machine learning
         """
 
         columns_to_drop = ['Date', 'Time', 'PID', 'Content', 'Level', 'Component']
 
-        unique_cols = df['EventId'].unique()
-        sorted_cols = sorted(unique_cols, key=lambda x: int(x[1:]))
+        # Prepend the E0 column to the beginning of the list
+        cols = ['E0'] + cols
+        sorted_cols = sorted(cols, key=lambda x: int(x[1:]))
         labels = df[['Label', 'BlockId']].drop_duplicates()
-
         df = df.drop(columns=columns_to_drop)
         df = df.groupby(['BlockId', 'EventId']).size().unstack(fill_value=0).reset_index()
+        missing_columns = [col for col in sorted_cols if col not in df.columns]
+        for col in missing_columns:
+            df[col] = 0
         df = df[['BlockId'] + sorted_cols]
         df = pd.merge(df, labels, on='BlockId')
+
+        # Normalization
+        min_max = min_max = df.iloc[:, 1:-1].agg([np.min, np.max])
+        global_min = min_max.loc['amin'].min()
+        global_max = min_max.loc['amax'].max()
+        df.iloc[:, 1:-1] = (df.iloc[:, 1:-1] - global_min) / (global_max - global_min)
+
         df['Label'] = df['Label'].map({'Normal': 0, 'Anomaly': 1})
         df = df.drop(columns=['BlockId'])
 
@@ -51,7 +61,7 @@ class Preprocess:
 
         return df
 
-    def data_split(self, df : pd.DataFrame, test_size):
+    def data_split(self, df : pd.DataFrame, test_size, show=False):
         """
         Split the input dataframe into train and test sets
         """
@@ -60,7 +70,14 @@ class Preprocess:
         matrix = np.array(df.values.tolist())
         train_data, test_data, train_labels, test_labels = train_test_split(matrix, labels, test_size=test_size, random_state=42)
 
+        if (show):
+            print("Train normal: ", len(train_labels[train_labels == 0]))
+            print("Train anomaly: ", len(train_labels[train_labels == 1]))
+            print("Test normal: ", len(test_labels[test_labels == 0]))
+            print("Test anomaly: ", len(test_labels[test_labels == 1]))
+
         return train_data, test_data, train_labels, test_labels
+
 
     def statistics(self, df : pd.DataFrame):
         """

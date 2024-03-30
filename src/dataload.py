@@ -71,7 +71,7 @@ class DataLoader:
         Replace special characters in the log template, so they can be used in regex matching
         """
         for line in log_template:
-            line[1] = line[1].replace('BLOCK*', 'BLOCK\*')
+            line[1] = line[1].replace('BLOCK*', 'BLOCK\\*')
             line[1] = line[1].replace('<*>', '.*')
         
         return log_template
@@ -93,6 +93,16 @@ class DataLoader:
             return anotations[blk_id]
         else:
             return None
+
+    def extract_template_events(self):
+        """
+        Extract all possible events from the log template file
+        """
+        with open(self.log_template_file, 'r') as f:
+            log_template = list(csv.reader(f))
+            event_id = [pat[0] for pat in log_template[1:]]
+        
+        return event_id
 
     def to_dataframe(self, events):
         """

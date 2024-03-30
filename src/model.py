@@ -43,10 +43,12 @@ class ML_model:
         conf_matrix = self.confusion_matrix(y_true, y_pred)
 
         if show:
-            print("Accuracy: ", acc)
-            print("F1: ", f1)
-            print("Precision: ", prec)
-            print("Recall: ", rec)
+            print("Accuracy: ", round(acc, 4))
+            print("F1: ", round(f1, 4))
+            print("Precision: ", round(prec, 4))
+            print("Recall: ", round(rec, 4))
+            print("FPR: ", round(conf_matrix[0][1] / (conf_matrix[0][1] + conf_matrix[0][0]), 4))
+            print("Confusion matrix: \n", conf_matrix)
 
         return acc, f1, prec, rec, conf_matrix
 
@@ -112,3 +114,16 @@ class ML_model:
         plt.xticks(range(df.shape[1]), indices)
         plt.xlim([-1, df.shape[1]])
         plt.show()
+
+    def save_results(self, df : pd.DataFrame, file_name):
+        """
+        Save the results to a csv file
+        """
+        df.to_csv(file_name, index=False)
+    
+    def create_results(self, models, results):
+        """
+        Create a dataframe with the results
+        """
+        cols = ['Model', 'Accuracy', 'F1', 'Precision', 'Recall']
+        return results
