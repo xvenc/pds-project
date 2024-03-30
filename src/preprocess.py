@@ -33,10 +33,13 @@ class Preprocess:
         df = df[['BlockId'] + sorted_cols]
         df = pd.merge(df, labels, on='BlockId')
 
+        # Convert to float
+        df[sorted_cols] = df[sorted_cols].astype(float)
+
         # Normalization
-        min_max = min_max = df.iloc[:, 1:-1].agg([np.min, np.max])
-        global_min = min_max.loc['amin'].min()
-        global_max = min_max.loc['amax'].max()
+        min_max = df.iloc[:, 1:-1].agg(['min', 'max'])
+        global_min = min_max.min().min()
+        global_max = min_max.max().max()
         df.iloc[:, 1:-1] = (df.iloc[:, 1:-1] - global_min) / (global_max - global_min)
 
         df['Label'] = df['Label'].map({'Normal': 0, 'Anomaly': 1})

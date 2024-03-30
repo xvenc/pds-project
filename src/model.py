@@ -6,6 +6,7 @@ Module with machine learning model for anomaly detection
 """
 
 import pandas as pd
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -115,11 +116,14 @@ class ML_model:
         plt.xlim([-1, df.shape[1]])
         plt.show()
 
-    def save_results(self, df : pd.DataFrame, file_name):
+    def save_results(self, df : pd.DataFrame, file_name, f_path):
         """
         Save the results to a csv file
         """
-        df.to_csv(file_name, index=False)
+        if not os.path.exists(f_path):
+            os.makedirs(f_path)
+
+        df.to_csv(f_path + file_name, index=False)
     
     def create_results(self, models, results):
         """
