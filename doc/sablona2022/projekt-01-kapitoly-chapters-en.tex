@@ -25,7 +25,8 @@ that much structured and are in a free text format. This makes it difficult to e
 But the log file analysis and processing can be crucial in many areas. For example, in the security area, log files are used to detect security breaches and attacks. 
 In the monitoring area, log files are used to detect system failures and performance issues. In the debugging area, log files are used to detect software bugs and issues \cite{inbook}. %(https://www.researchgate.net/publication/335883136_Log_File_Analysis_as_a_Method_for_Automated_Measurement_of_Internet_Usage) 
 So it is important to develop methods and tools to automatically process and analyze log files. 
-
+The whole process can is shown in the figure \ref{fig:log_process}.
+\\
 The process of log file analysis for anomaly detection can be divided into 4 main steps.
 \begin{enumerate}
     \item Collect log files from the system. The log files can be collected from various sources like system logs, application logs, network logs, etc. 
@@ -34,11 +35,10 @@ The process of log file analysis for anomaly detection can be divided into 4 mai
     \item Detect anomalies in the log files. The last step is to use some methods to detect anomalies in the log files. Anomalies are the events that are different from the normal behaviour of the system. The goal is to detect these anomalies as soon as possible to prevent system failures and security breaches.
 \end{enumerate}
 
-The whole process can is shown in the figure \ref{fig:log_process}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{obrazky-figures/pipline.png}
+    \includegraphics[width=1\textwidth]{obrazky-figures/pipline.png}
     \caption{The process of log file analysis for anomaly detection. The image was taken from \cite{goat}.}
     \label{fig:log_process}
 \end{figure}
@@ -70,7 +70,7 @@ of the event, e.g INFO, WARNING) and \textbf{message} that descibes the event in
 \end{center}
 
 There are many publicly available datasets published by various organizations and authors. Popular datasets are for exapmle: \textbf{Loghub}\footnote{\url{https://github.com/logpai/loghub/tree/master?tab=readme-ov-file} (visited 29.3.2024)} , % add footnote
-\textbf{Secrepo}\footnote{\url{https://www.secrepo.com/#} (visited 29.3.2024)} or \textbf{Stratosphere labs}\footnote{\url{https://www.stratosphereips.org/datasets-overview} (visited 29.3.2024)}. For this project I used the log dataset provided by \textbf{Loghub}. This dataset is public and free to use. 
+\textbf{Secrepo}\footnote{\url{https://www.secrepo.com/} (visited 29.3.2024)} or \textbf{Stratosphere labs}\footnote{\url{https://www.stratosphereips.org/datasets-overview} (visited 29.3.2024)}. For this project I used the log dataset provided by \textbf{Loghub}. This dataset is public and free to use. 
 More specifically I used the HDFS v1 dataset about which I will provide more details in the next section.
 
 Generally datasets can be divided into two groups: labelled and unlabelled datasets. The labelled datasets contain log messages that are labeled as normal or abnormal. The unlabelled datasets contain only log messages without any labels.
@@ -178,7 +178,7 @@ The Isolation Forest is an unsupervised machine learning model for anomaly detec
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{obrazky-figures/random_forest.drawio.png}
+    \includegraphics[width=0.7\textwidth]{obrazky-figures/random_forest.drawio.png}
     \caption{Simplified picture of how Random Forest can look like.}
     \label{fig:random_forest}
 \end{figure}
