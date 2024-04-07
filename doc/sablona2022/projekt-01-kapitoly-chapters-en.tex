@@ -23,7 +23,7 @@ are generating around 120 to 200 milion lines of log entries per hour. So you ca
 that much structured and are in a free text format. This makes it difficult to extract useful information from the log files.
 
 But the log file analysis and processing can be crucial in many areas. For example, in the security area, log files are used to detect security breaches and attacks. 
-In the monitoring area, log files are used to detect system failures and performance issues. In the debugging area, log files are used to detect software bugs and issues. %(https://www.researchgate.net/publication/335883136_Log_File_Analysis_as_a_Method_for_Automated_Measurement_of_Internet_Usage) 
+In the monitoring area, log files are used to detect system failures and performance issues. In the debugging area, log files are used to detect software bugs and issues \cite{inbook}. %(https://www.researchgate.net/publication/335883136_Log_File_Analysis_as_a_Method_for_Automated_Measurement_of_Internet_Usage) 
 So it is important to develop methods and tools to automatically process and analyze log files. 
 
 The process of log file analysis for anomaly detection can be divided into 4 main steps.
@@ -34,8 +34,17 @@ The process of log file analysis for anomaly detection can be divided into 4 mai
     \item Detect anomalies in the log files. The last step is to use some methods to detect anomalies in the log files. Anomalies are the events that are different from the normal behaviour of the system. The goal is to detect these anomalies as soon as possible to prevent system failures and security breaches.
 \end{enumerate}
 
+The whole process can is shown in the figure \ref{fig:log_process}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{obrazky-figures/pipline.png}
+    \caption{The process of log file analysis for anomaly detection. The image was taken from \cite{goat}.}
+    \label{fig:log_process}
+\end{figure}
+
 There are various methods that can be used to detect anomalies from the log files. In this project I focused on the machine learning methods for anomaly detection in log files.
-But there are also other methods for anomaly detection in log files (e.g. statistical methods). %https://www.researchgate.net/publication/325191790_Anomaly_Detection_Techniques
+But there are also other methods for anomaly detection in log files (e.g. statistical methods) \cite{article}. %https://www.researchgate.net/publication/325191790_Anomaly_Detection_Techniques
 
 Based on the type of data and the machine learning techniques used, anomaly detection methods can be classified into two broad categories: supervised anomaly detection and unsupervised
 anomaly detection. Supervised methods require labeled data, which means that the data is labeled as normal or abnormal. Unsupervised methods do not require labeled data. In this project I focused on 
@@ -60,8 +69,8 @@ of the event, e.g INFO, WARNING) and \textbf{message} that descibes the event in
 
 \end{center}
 
-There are many publicly available datasets published by various organizations and authors. Popular datasets are for exapmle: \textbf{Loghub}, % add footnote
-\textbf{Secrepo} or \textbf{Stratosphere labs}. For this project I used the log dataset provided by \textbf{Loghub}. This dataset is public and free to use. 
+There are many publicly available datasets published by various organizations and authors. Popular datasets are for exapmle: \textbf{Loghub}\footnote{\url{https://github.com/logpai/loghub/tree/master?tab=readme-ov-file} (visited 29.3.2024)} , % add footnote
+\textbf{Secrepo}\footnote{\url{https://www.secrepo.com/#} (visited 29.3.2024)} or \textbf{Stratosphere labs}\footnote{\url{https://www.stratosphereips.org/datasets-overview} (visited 29.3.2024)}. For this project I used the log dataset provided by \textbf{Loghub}. This dataset is public and free to use. 
 More specifically I used the HDFS v1 dataset about which I will provide more details in the next section.
 
 Generally datasets can be divided into two groups: labelled and unlabelled datasets. The labelled datasets contain log messages that are labeled as normal or abnormal. The unlabelled datasets contain only log messages without any labels.
@@ -69,7 +78,7 @@ I focused on the labelled datasets, because I used supervised machine learning m
 
 \section{HDFS log dataset} \label{hdfs}
 
-The dataset I chose for this project is the HDFS v1 dataset from the Loghub. The collection of the individual log files is described in this paper: % add citation. 
+The dataset I chose for this project is the HDFS v1 dataset from the Loghub. The collection of the individual log files is described in this paper\cite{zhu2023loghub}. % add citation. 
 This dataset contains log messages from the Hadoop Distributed File System (HDFS). The HDFS is a distributed 
 system designed to run on a large cluster of commodity hardware. The Loghub provides 3 versions of the HDFS dataset: HDFS v1, HDFS v2 and HDFS v3. I chose the HDFS v1 dataset, because it's annotated with labels.
 
@@ -108,7 +117,7 @@ So the first step is to use some methods to parse the log files and extract usef
 
 Typically, log parsing problem is clustering problem, where the goal is to cluster the log messages into groups based on their similarity. The log messages in the same group
 should describe the same system event and the output of this clustering should be in some form of template file. This template file is then used to match the log messages to the templates. 
-This can be done by number of existing log parsers. % logparser cite https://jiemingzhu.github.io/pub/slhe_issre2016.pdf
+This can be done by number of existing log parsers \cite{goat}. % logparser cite https://jiemingzhu.github.io/pub/slhe_issre2016.pdf
 Thankfuly I didn't have to do the clustering to create the template file, because the authors of the HDFS v1 dataset already did it and they provided the template file. 
 
 So the template file contains 30 unique \texttt{template events} (further will be refered only as events). These events consist of two parts: \texttt{constant} and \texttt{variable}. 
@@ -164,7 +173,7 @@ For this project three machine learning methods were considered: \textbf{Logisti
 Mainly because the Random Forest is the most familiar to me, because I used it in the past in my bachelor's thesis. It's also robust to overfitting and can handle large datasets with higher dimensionality.
 A simple example of how the Random Forest model works is shown in the figure \ref{fig:random_forest}.
 
-Another model that was used in the experiments was the Isolation Forest. % TODO cite this https://ieeexplore.ieee.org/document/4781136 
+Another model that was used in the experiments was the Isolation Forest \cite{rf}. % TODO cite this https://ieeexplore.ieee.org/document/4781136 
 The Isolation Forest is an unsupervised machine learning model for anomaly detection. It's based on the Random Forest model, but it's used for anomaly detection.
 
 \begin{figure}
@@ -350,6 +359,7 @@ This project focused on the log file analysis and anomaly detection.
 The main goal of the project was to develop a tool that can be used to detect anomalies in log files using machine learning methods and to conduct experiments and evaluate the results.
 
 From the experiments it can be seen that the Random Forest model performed the best on balanced dataset. The model achieved the accuracy of 0.99, the precision of 0.99, the recall of 0.99 and the f1-score of 0.99.
+Just like they did in the paper \cite{goat}.
 From all of this it would seem that the model is good and can be used for anomaly detection in log files. But there were some limitations to this project. 
 First of all we need to consider that the tool needs a template file to work. How is the template file created> The template file is created specifically for the log dataset that is used for the training and testing of the model.
 So the tool won't perform well if there will be some new log entries that don't match any event template. Because all new log entries will be assigned \textbf{E0}. So this new entry will be most likely classified as anomaly, which 
