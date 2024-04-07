@@ -7,7 +7,9 @@ Module with data loading
 
 import re
 import csv
+import os
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 class DataLoader:
 
@@ -117,6 +119,31 @@ class DataLoader:
         Save the dataframe to a csv file
         """
         df.to_csv(file_name, index=False)
+
+    def split_logfile(self, log, training_size):
+        """
+        Split the log file dataframe into training and testing data
+        """
+        train, test = train_test_split(log, test_size=training_size)
+        return train, test
+
+    def convert_df_to_list(self, df):
+        """
+        Convert the dataframe to a list
+        """
+        return df.values.tolist()
+
+    def save_logfile(self, log, file_name, file_path):
+        """
+        Save the log file to other file
+        """
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+
+        with open(file_path + file_name, 'w') as f:
+            for l in log:
+                line = ' '.join(l)
+                f.write(line + '\n')
 
     def match_event(self, log, log_template, labels):
         """
