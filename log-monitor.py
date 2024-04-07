@@ -24,6 +24,8 @@ def parse_args():
     parser.add_argument('--labels', type=str, help='Path to the labels file')
     parser.add_argument('--model', type=str, help='Model for anomaly detection')
     parser.add_argument('--parse', type=bool, help='Parse the log file and don''t use the csv files', default=False)
+    parser.add_argument('-training', required=True, help='Path to the training data')
+    parser.add_argument('-testing', required=True, help='Path to the testing data')
 
     return parser.parse_args()
 
@@ -37,7 +39,7 @@ def save_results(df : pd.DataFrame, file_name, f_path):
     df.to_csv(f_path + file_name, index=False)
 
 # 0 train, 1 test, 2 train_labels, 3 test_labels
-def perform_experiments(models, model_names, balanced_data, unbalanced_data):
+def perform_experiments(models, model_names, data):
     """
     Perform experiments with the models
     """
@@ -46,20 +48,15 @@ def perform_experiments(models, model_names, balanced_data, unbalanced_data):
     i = 0
     for model, name in zip(models, model_names):
         print("\nModel: ", name)
-        if i % 2 == 0:
-            model.train(balanced_data[0], balanced_data[2])
-            acc, f1, prec, rec, conf_matrix = model.evaluate(balanced_data[1], balanced_data[3], show=True)
-        else:
-            model.train(unbalanced_data[0], unbalanced_data[2])
-            acc, f1, prec, rec, conf_matrix = model.evaluate(unbalanced_data[1], unbalanced_data[3], show=True)    
+        model.train(data[0], data[2])
+        acc, f1, prec, rec, conf_matrix = model.evaluate(data[1], data[3], show=True)
         new_row = {'Model': name, 'Accuracy': acc, 'F1': f1, 'Precision': prec, 'Recall': rec, 'FPR': conf_matrix[0][1] / (conf_matrix[0][1] + conf_matrix[0][0])}
         result_df.loc[i] = new_row
         i += 1
     
     return result_df
 
-
-if __name__ == '__main__':
+def old_main():
     args = parse_args()
 
     loader = DataLoader(args.log_file, args.template, args.labels) 
@@ -102,6 +99,45 @@ if __name__ == '__main__':
     models = [ml_model, ml_model_unbalanced, ml_model_def, ml_model_def_unbalanced]
     model_names = ['RF tuned balanced', 'RF tuned unbalanced', 'RF default balanced', 'RF default unbalanced']
 
-    result_df = perform_experiments(models, model_names, balanced_data, unbalanced_data)
-    save_results(result_df, 'results.csv', './out/') 
-    print(result_df)
+    #result_df = perform_experiments(models, model_names, balanced_data, unbalanced_data)
+    #save_results(result_df, 'results.csv', './out/') 
+    #print(result_df)
+
+if __name__ == '__main__':
+    
+    args = parse_args()
+
+    # Here load the test and train files of unbalanced data
+    loader = DataLoader()
+    preprocess = Preprocess()
+
+    train = loader.read_log(args.training, split=True, labels=True)
+    test = loader.read_log(args.testing, split=True, labels=True)
+
+    log_template = loader.read_log_template_csv()
+
+    matched_train = loader.match_event(train, log_template, None, labels_present=True)
+    matched_test = loader.match_event(test, log_template, None, labels_present=True)
+
+    loader.get_stats()
+
+    event_ids = loader.extract_template_events()
+
+    df_train = loader.to_dataframe(matched_train)
+    df_test = loader.to_dataframe(matched_test)
+
+    df_train = preprocess.preprocess(df_train, event_ids)
+    df_test = preprocess.preprocess(df_test, event_ids)
+
+    train_data, train_labels = preprocess.split_dataframe(df_train)
+    test_data, test_labels = preprocess.split_dataframe(df_test)
+
+    model = RandomForestClassifier(criterion='entropy', n_estimators=50, min_samples_split=2, max_features='sqrt', max_depth=20)
+    ml_model = ML_model(model)
+    ml_model_def = ML_model(RandomForestClassifier())
+
+    models = [ml_model, ml_model_def]
+    model_names = ['RF tuned', 'RF default']
+
+    result_df = perform_experiments(models, model_names, [train_data, test_data, train_labels, test_labels])
+    save_results(result_df, 'results.csv', './out/')

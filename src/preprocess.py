@@ -80,7 +80,15 @@ class Preprocess:
             print("Test anomaly: ", len(test_labels[test_labels == 1]))
 
         return train_data, test_data, train_labels, test_labels
+    
+    def split_dataframe(self, df : pd.DataFrame):
+        """
+        Split the dataframe into data and labels
+        """
+        labels = df['Label']
+        data = df.drop(columns=['Label'])
 
+        return data, labels
 
     def statistics(self, df : pd.DataFrame):
         """

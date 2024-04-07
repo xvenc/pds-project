@@ -19,22 +19,27 @@ class DataLoader:
     unknown_event = 0
     skipped = 0
 
-    def __init__(self, log_file, log_template_file, label_file):
-        self.log_file = log_file
+    def __init__(self, log_template_file="./logs/HDFS_templates2.csv", label_file="./logs/anomaly_label.csv"):
         self.log_template_file = log_template_file
         self.label_file = label_file
 
-    def read_log(self, split=False):
+    def read_log(self, log_file ,split=False, labels=False):
         """
         Read the log file line by line into a list and strip trailing whitespace characters
         """
-        with open(self.log_file, 'r') as f:
+        with open(log_file, 'r') as f:
             print("Reading log file...")
             log = f.readlines()
             log = [l.strip() for l in log]
 
-        if split:
+        # Split the log line into separate columns
+        if split and not labels:
             log = [l.split(" ", 5) for l in log]
+        elif split and labels:
+            # Log entries with labels have the label at the end
+            log = [l.split(" ", 5) for l in log]
+            # Now the last column split on the last space
+            log = [[*l[:-1], *l[-1].rsplit(" ", 1)] for l in log]
 
         return log
 
@@ -145,18 +150,37 @@ class DataLoader:
                 line = ' '.join(l)
                 f.write(line + '\n')
 
-    def match_event(self, log, log_template, labels):
+    def match_log_label(self, log, labels):
+        """
+        Match the log with the labels
+        """
+        for l in log:
+            blk_id = self._extract_blk_id(l[-1])
+            label = self._extract_label(labels, blk_id)
+            if label:
+                l.append(label)
+            else:
+                l.append('Anomaly')
+        return log
+
+    def match_event(self, log, log_template, labels, labels_present=False):
         """
         Match the events in the log with the log template and labels
         """
         print("Parsing log...")
         for l in log:
-            blk_id = self._extract_blk_id(l[-1])
-            label = self._extract_label(labels, blk_id)
+            if labels_present:
+                content = l[-2]
+                label = l.pop()
+            else:
+                content = l[-1]
+            blk_id = self._extract_blk_id(content)
+            if not labels_present:
+                label = self._extract_label(labels, blk_id)
             event_id = None
             for pat in log_template:
                 pattern = re.compile(pat[1])
-                match = pattern.match(l[-1])
+                match = pattern.match(content)
                 if match:
                     event_id = pat[0]
                     break
