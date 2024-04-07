@@ -35,6 +35,7 @@ Then you can run the main script by running the following command:
 python log-monitor.py <arguments> 
 ```
 
+The next step is to download the necessary datasets. The datasets are available on this google drive [link](https://drive.google.com/drive/folders/1Q6QF2). There are two datasets availabe. One is unbalanced and one is balanced.
 
 ## Usage
 
@@ -42,20 +43,13 @@ The main script `log-monitor.py` is used for log file analysis and anomaly detec
 
 ```shell
 
-usage: log-monitor.py [-h] [--log_file LOG_FILE] [--template TEMPLATE_FILE] [--labels DATASET_LABELS] [--model MODEL_NAME] [--parse]
+usage: log-monitor.py [-h] [-training TRAINING_FILE] [-testing TESTING_FILE] 
 ```
-
-There are 2 options for model selection. The first option is the `random_forest` model and the second option is the `isolation_forest` model. The model can be selected by providing the `--model` argument.
-
-The `--parse` argument is used for parsing the log file. If the `--parse` argument is provided, the log file will be parsed. This will cause that the program will run longer, because it needs to parse all the log lines. If the `--parse` argument is not provided, the program will use the already parsed log file. The parsed log file is stored in the `logs/hdfs.csv` file.
 
 If no arguments are provided, the script will use the default values for the arguments. The default values are as follows:
 
-* `--log_file` - `logs/HDFS.log`
-* `--template` - `logs/HDFS_template.csv`
-* `--labels` - `logs/anomaly_label.csv`
-* `--model` - `random_forest`
-* `--parse` - `False`
+* `-training` - `logs/balanced_train.log`
+* `-testing` - `logs/balanced_test.log`
 
 ## Archive structure 
 
@@ -70,7 +64,6 @@ The archive contains 2 main direcotries. The `src/` directory contains the sourc
 * `src/model.py` - script for anomaly detection model creation
 * `src/preprocess.py` - script for log file preprocessing
 * `logs/` - directory with log files
-* `logs/HDFS.log` - log file for Hadoop Distributed File System
 * `logs/HDFS_template.csv` - template for HDFS.log
 * `logs/anomaly_label.csv` - anomaly labels for HDFS.log
 * `xkorva03.pdf` - project documentation
