@@ -8,6 +8,9 @@ Main module for log monitoring and anomaly detection
 import argparse
 import pandas as pd
 import os
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from src.dataload import DataLoader
 from src.preprocess import Preprocess
 from src.model import ML_model
@@ -47,11 +50,12 @@ def perform_experiments(models, model_names, data):
     result_df = pd.DataFrame(columns=['Model', 'Accuracy', 'F1', 'Precision', 'Recall', 'FPR'])
     i = 0
     for model, name in zip(models, model_names):
-        print("\nModel: ", name)
+        print("\nModel: ", name,"\n")
         model.train(data[0], data[2])
         acc, f1, prec, rec, conf_matrix = model.evaluate(data[1], data[3], show=True)
         new_row = {'Model': name, 'Accuracy': acc, 'F1': f1, 'Precision': prec, 'Recall': rec, 'FPR': conf_matrix[0][1] / (conf_matrix[0][1] + conf_matrix[0][0])}
         result_df.loc[i] = new_row
+        print(type(conf_matrix))
         i += 1
     
     return result_df
@@ -107,7 +111,6 @@ if __name__ == '__main__':
     
     args = parse_args()
 
-    # Here load the test and train files of unbalanced data
     loader = DataLoader()
     preprocess = Preprocess()
 
@@ -119,7 +122,7 @@ if __name__ == '__main__':
     matched_train = loader.match_event(train, log_template, None, labels_present=True)
     matched_test = loader.match_event(test, log_template, None, labels_present=True)
 
-    loader.get_stats()
+    #loader.get_stats()
 
     event_ids = loader.extract_template_events()
 
@@ -128,16 +131,31 @@ if __name__ == '__main__':
 
     df_train = preprocess.preprocess(df_train, event_ids)
     df_test = preprocess.preprocess(df_test, event_ids)
-
+    print("\nTrain data")
+    preprocess.statistics(df_train)
+    print("\nTest data")
+    preprocess.statistics(df_test)
+    
     train_data, train_labels = preprocess.split_dataframe(df_train)
     test_data, test_labels = preprocess.split_dataframe(df_test)
 
     model = RandomForestClassifier(criterion='entropy', n_estimators=50, min_samples_split=2, max_features='sqrt', max_depth=20)
     ml_model = ML_model(model)
     ml_model_def = ML_model(RandomForestClassifier())
+    ml_model_ISF = ML_model(IsolationForest(contamination=0.3))
 
     models = [ml_model, ml_model_def]
-    model_names = ['RF tuned', 'RF default']
+    model_names = ['Random Forest tuned', 'Random Forest default']
 
     result_df = perform_experiments(models, model_names, [train_data, test_data, train_labels, test_labels])
-    save_results(result_df, 'results.csv', './out/')
+    #save_results(result_df, 'results.csv', './out/')
+
+    #ml_model_ISF.train(train_data, train_labels)
+    #y_pred = ml_model_ISF.predict(test_data)
+    #y_pred = np.where(y_pred > 0, 0, 1)
+    #print("\nIsolation Forest")
+    #print("Accuracy: ",round(ml_model_ISF.accuracy(test_labels, y_pred),4))
+    #print("F1: ",round(ml_model_ISF.f1(test_labels, y_pred),4))
+    #print("Precision: ",round(ml_model_ISF.precision(test_labels, y_pred),4))
+    #print("Recall: ",round(ml_model_ISF.recall(test_labels, y_pred),4))
+    #print("FPR: ", round(ml_model_ISF.fpr(test_labels, y_pred), 4))

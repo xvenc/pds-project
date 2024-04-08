@@ -50,6 +50,7 @@ class ML_model:
             print("Recall: ", round(rec, 4))
             print("FPR: ", round(conf_matrix[0][1] / (conf_matrix[0][1] + conf_matrix[0][0]), 4))
             print("Confusion matrix: \n", conf_matrix)
+            self.conf_matrix_graph(conf_matrix)
 
         return acc, f1, prec, rec, conf_matrix
 
@@ -86,6 +87,13 @@ class ML_model:
         """
         return recall_score(y_true, y_pred)
 
+    def fpr(self, y_true, y_pred):
+        """
+        Return the false positive rate for the input labels and predictions
+        """
+        conf_matrix = self.confusion_matrix(y_true, y_pred)
+        return conf_matrix[0][1] / (conf_matrix[0][1] + conf_matrix[0][0])
+
     def precision(self, y_true, y_pred):
         """
         Return the precision score for the input labels and predictions
@@ -97,7 +105,7 @@ class ML_model:
         Plot the confusion matrix as a heatmap
         """
         plt.figure(figsize=(12, 8))
-        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues_r')
+        sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=['Normal', 'Anomaly'], yticklabels=['Normal', 'Anomaly'])
         plt.xlabel('Predicted label')
         plt.ylabel('True label')
         plt.show()

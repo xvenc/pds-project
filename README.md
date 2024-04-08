@@ -10,6 +10,8 @@ This project is based on the Hadoop Distributed File System (HDFS) log file, whi
 
 ## Instalation
 
+The project was developed using Python 3.11. The project was tested on Ubuntu 20.04.4 LTS and Arch Linux.
+
 First, you need to install the required packages. You can do this by running the following command:
 
 ```shell
@@ -51,6 +53,12 @@ If no arguments are provided, the script will use the default values for the arg
 * `-training` - `logs/balanced_train.log`
 * `-testing` - `logs/balanced_test.log`
 
+Example of the script usage:
+
+```shell
+python log-monitor.py -training logs/balanced_train.log -testing logs/balanced_test.log
+```
+
 ## Archive structure 
 
 The archive contains 2 main direcotries. The `src/` directory contains the source codes for the project. The `logs/` directory contains the log file, the anomaly labels and the template for the log file. And in the root directory, there is the main script for log file analysis and anomaly detection `log-monitor.py` and the project documentation `xkorva03.pdf`.
@@ -67,3 +75,5 @@ The archive contains 2 main direcotries. The `src/` directory contains the sourc
 * `logs/HDFS_template.csv` - template for HDFS.log
 * `logs/anomaly_label.csv` - anomaly labels for HDFS.log
 * `xkorva03.pdf` - project documentation
+* `requirements.txt` - file with required packages
+* `Makefile` - file with make commands to install the required packages
